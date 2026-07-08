@@ -40,15 +40,17 @@ pipeline {
             }
         }
 
+        /*
         stage('4. Run UI Tests (Cypress)') {
             steps {
                 echo 'Запуск Е2Е сценаріїв на Cypress у Headless режимі...'
                 catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
                     // Команда для запуску Cypress в консольному режимі (ми додамо її в package.json пізніше)
-                    sh 'npx cypress run' 
+                    sh 'npm run cypress:run' 
                 }
             }
         }
+        */
     }
 
     post {

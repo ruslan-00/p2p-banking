@@ -5,7 +5,8 @@
   "main": "app/server.js",
   "scripts": {
     "start": "node app/server.js",
-    "test": "jest --runInBand"
+    "test": "jest --runInBand",
+    "cypress:run": "npx cypress run"
   },
   "repository": {
     "type": "git",
