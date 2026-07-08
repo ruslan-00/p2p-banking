@@ -1,17 +1,20 @@
-const { flushSoftAsserts } = require('../utils/assertions');
-const { matchers } = require('jest-json-schema');
-const path = require('path');
-const fs = require('fs');
+const { flushSoftAsserts } = require("../utils/assertions");
+const { matchers } = require("jest-json-schema");
+const path = require("path");
+const fs = require("fs");
 
 // Підняти сервер один раз для всіх тестів та коректно закрити після завершення
-const app = require('../../app/server');
+const app = require("../../app/server");
 const server = app && app.server;
 
 expect.extend(matchers);
 
 jest.setTimeout(40000);
 
-const SOFT_ASSERT_FILE = path.join(__dirname, '../../temp/.soft-assertions-temp.json');
+const SOFT_ASSERT_FILE = path.join(
+  __dirname,
+  "../../temp/.soft-assertions-temp.json",
+);
 
 global.errors = [];
 global.softAssertResults = [];
@@ -27,7 +30,7 @@ afterEach(() => {
     let allResults = {};
     if (fs.existsSync(SOFT_ASSERT_FILE)) {
       try {
-        allResults = JSON.parse(fs.readFileSync(SOFT_ASSERT_FILE, 'utf-8'));
+        allResults = JSON.parse(fs.readFileSync(SOFT_ASSERT_FILE, "utf-8"));
       } catch {}
     }
     allResults[testName] = global.softAssertResults;
@@ -35,12 +38,12 @@ afterEach(() => {
   }
   flushSoftAsserts(global.errors);
 });
-
 afterAll((done) => {
-  if (server && typeof server.close === 'function') {
-    server.close((err) => {
-      // Ігноруємо помилку закриття під час завершення тестів
-      done(err);
+  // Закриваємо лише підключення до БД, оскільки за сервер відповідає Jenkins
+  if (db && typeof db.close === "function") {
+    db.close((err) => {
+      if (err) console.error("Error closing database:", err.message);
+      done();
     });
   } else {
     done();
