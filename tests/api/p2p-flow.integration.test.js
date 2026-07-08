@@ -26,11 +26,6 @@ describe("Test Suite transfer API", () => {
     db = new sqlite3.Database(dbPath, done);
   });
 
-  // 2. Закриваємо з'єднання після завершення тестів
-  afterAll((done) => {
-    db.close(done);
-  });
-
   test("happy flow with SQL DB validation", (done) => {
     const payload = {
       sender_account: "UA100001",
