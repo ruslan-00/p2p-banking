@@ -20,10 +20,11 @@ pipeline {
         stage('2. Start Core Banking Application') {
             steps {
                 echo '🚀 Запуск банківського сервера Apex Ledger в окремому фоновому вікні...'
-                // Запуск у новому повністю незалежному вікні CLI
                 bat 'start "ApexServer" node app/server.js'
-                // Очікування 5 секунд для стабільної ініціалізації БД
-                bat 'timeout /t 5 /nobreak'
+                
+                // ЗАМІСТЬ: bat 'timeout /t 5 /nobreak'
+                // ВИКОРИСТОВУЙ ЦЕ (очікування 5000 мілісекунд через Node.js):
+                bat 'node -e "setTimeout(() => {}, 5000)"'
             }
         }
 
