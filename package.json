@@ -1,0 +1,25 @@
+{
+  "name": "p2p-banking",
+  "version": "1.0.0",
+  "description": "Цей проєкт симулює логіку банку — для демонстрації роботи тестів",
+  "main": "app/server.js",
+  "scripts": {
+    "start": "node app/server.js",
+    "test": "jest --runInBand"
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "sqlite3": "^6.0.1"
+  },
+  "devDependencies": {
+    "axios": "^1.18.1",
+    "jest": "^30.4.2",
+    "jest-json-schema": "^6.1.0"
+  },
+  "author": "Kokhanskiy Ruslan",
+  "license": "ISC"
+}

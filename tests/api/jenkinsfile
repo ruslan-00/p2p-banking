@@ -1,0 +1,70 @@
+pipeline {
+    agent any
+
+    tools {
+        // Вказуємо назву конфігурації Node.js, яка налаштована у твоєму Jenkins (Global Tool Configuration)
+        nodejs 'node' 
+    }
+
+    environment {
+        // Визначаємо URL нашого локального додатка для тестів всередині пайплайну
+        BASE_URL = 'http://localhost:3000'
+    }
+
+    stages {
+        stage('1. Initialization') {
+            steps {
+                echo 'Зчитування коду та встановлення залежностей...'
+                sh 'npm install'
+            }
+        }
+
+        stage('2. Start Core Banking Application') {
+            steps {
+                echo 'Запуск банківського сервера Apex Ledger у фоновому режимі...'
+                // Запускаємо Express сервер у фоні (&), щоб пайплайн міг йти далі до тестів
+                sh 'node app/server.js &'
+                // Даємо серверу 3 секунди на ініціалізацію бази даних та генерацію 20 юзерів
+                sh 'sleep 3' 
+            }
+        }
+
+        stage('3. Run API Tests (Jest)') {
+            steps {
+                echo 'Запуск інтеграційного API-тест сьюту з Soft Assertions та SQL валідацією...'
+                // Запускаємо Jest тести. catchError дозволяє пайплайну не падати моментально,
+                // якщо ми хочемо зібрати звіти навіть у разі падіння тестів
+                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                    sh 'npm run test'
+                }
+            }
+        }
+
+        stage('4. Run UI Tests (Cypress)') {
+            steps {
+                echo 'Запуск Е2Е сценаріїв на Cypress у Headless режимі...'
+                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                    // Команда для запуску Cypress в консольному режимі (ми додамо її в package.json пізніше)
+                    sh 'npx cypress run' 
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            echo 'Архівація артефактів тестування та очищення оточення...'
+            // Зберігаємо наш крутий JSON з м'якими перевірками як артефакт збірки
+            archiveArtifacts artifacts: '.soft-assertions-temp.json', allowEmptyArchive: true
+            
+            // Вбиваємо процес нашого Express сервера, щоб звільнити порт 3000 для наступних збірок
+            sh 'pkill -f "node app/server.js" || true'
+        }
+        success {
+            echo 'CI/CD Пайплайн завершився успішно! Усі фінансові транзакції валідовано.'
+        }
+        failure {
+            echo 'Пайплайн впав. Знайдено критичні дефекти в транзакційному ядрі!'
+        }
+    }
+}

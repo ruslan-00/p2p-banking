@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bank - Execute P2P Transaction</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 text-slate-900 font-sans antialiased">
+
+    <div class="bg-slate-900 text-slate-400 text-xs py-2 px-6 flex justify-between items-center border-b border-slate-800">
+        <div class="flex items-center gap-4">
+            <span class="flex items-center gap-1.5 font-mono">
+                <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                API GATEWAY: ONLINE
+            </span>
+            <span class="text-slate-600">|</span>
+            <span class="flex items-center gap-1.5 font-mono">
+                <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
+                TRANSACTION ENV: ISOLATED
+            </span>
+        </div>
+        <div class="font-mono text-slate-500 flex items-center gap-3">
+            <span>ENV: QA_AUTOMATION_DEMO</span>
+            <span>•</span>
+            <span>SERVER TIME: 2026-07-04</span>
+        </div>
+    </div>
+
+    <div class="max-w-md mx-auto px-4 py-12">
+        
+        <div class="mb-6">
+            <a href="index.html" data-cy="back-to-dashboard" class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500 hover:text-orange-600 transition duration-150">
+                <span>←</span> Повернутись до Core Ledger
+            </a>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-xl shadow-slate-200/80 border border-slate-200 overflow-hidden">
+            
+            <div class="bg-slate-950 p-6 text-white border-b border-slate-800 flex justify-between items-center">
+                <div>
+                    <h2 class="text-sm font-mono uppercase tracking-widest text-orange-500 font-bold">Transaction Console</h2>
+                    <p class="text-xs text-slate-400 mt-0.5">Ініціювання клієнтського P2P переказу</p>
+                </div>
+                <span class="text-[10px] font-mono bg-slate-800 text-slate-300 px-2 py-1 rounded border border-slate-700 uppercase font-semibold">
+                    v1/transfer
+                </span>
+            </div>
+
+            <div class="p-6">
+                
+                <div id="alert-box" class="hidden p-4 rounded-xl mb-6 text-xs font-mono border transition duration-200"></div>
+
+                <form id="transfer-form" onsubmit="handleTransferSubmit(event)">
+                    
+                    <div class="mb-5">
+                        <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
+                            Рахунок відправника (Debit Account)
+                        </label>
+                        <div class="relative">
+                            <input type="text" id="sender-input" data-cy="sender-account-field" placeholder="наприклад, UA100001" required
+                                class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white transition duration-150 uppercase font-mono text-sm tracking-wide text-slate-900">
+                        </div>
+                        <p class="text-[10px] text-slate-400 mt-1">Рахунок, з якого будуть списані кошти. Має бути в статусі ACTIVE.</p>
+                    </div>
+
+                    <div class="mb-5">
+                        <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
+                            Рахунок отримувача (Credit Account)
+                        </label>
+                        <input type="text" id="receiver-input" data-cy="receiver-account-field" placeholder="наприклад, UA100002" required
+                            class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white transition duration-150 uppercase font-mono text-sm tracking-wide text-slate-900">
+                        <p class="text-[10px] text-slate-400 mt-1">Валюта рахунку отримувача повинна збігатися з валютою відправника.</p>
+                    </div>
+
+                    <div class="mb-6">
+                        <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
+                            Сума переказу (Amount)
+                        </label>
+                        <div class="relative rounded-xl shadow-sm">
+                            <input type="number" step="0.01" min="0.01" id="amount-input" data-cy="transfer-amount-field" placeholder="0.00" required
+                                class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white transition duration-150 font-mono font-bold text-base text-slate-900">
+                        </div>
+                        <p class="text-[10px] text-slate-400 mt-1">Мінімальна сума: 0.01. Значення валідується на стороні API.</p>
+                    </div>
+
+                    <button type="submit" id="submit-btn" data-cy="submit-transfer-button"
+                        class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-orange-600/10 hover:shadow-xl hover:shadow-orange-600/20 transition duration-200 flex items-center justify-center gap-2">
+                        🚀 Виконати транзакцію
+                    </button>
+                    
+                </form>
+            </div>
+            
+            <div class="bg-slate-50 px-6 py-3 border-t border-slate-100 text-[10px] font-mono text-slate-400 flex justify-between items-center">
+                <span>VALIDATION: ENABLED</span>
+                <span>ISO 20022 COMPLIANT</span>
+            </div>
+            
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
