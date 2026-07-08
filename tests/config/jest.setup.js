@@ -38,14 +38,4 @@ afterEach(() => {
   }
   flushSoftAsserts(global.errors);
 });
-afterAll((done) => {
-  // Закриваємо лише підключення до БД, оскільки за сервер відповідає Jenkins
-  if (db && typeof db.close === "function") {
-    db.close((err) => {
-      if (err) console.error("Error closing database:", err.message);
-      done();
-    });
-  } else {
-    done();
-  }
-});
+
