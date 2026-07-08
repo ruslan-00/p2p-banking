@@ -1,11 +1,6 @@
 pipeline {
     agent any
 
-    tools {
-        // Вказуємо назву конфігурації Node.js, яка налаштована у твоєму Jenkins (Global Tool Configuration)
-        nodejs 'node' 
-    }
-
     environment {
         // Визначаємо URL нашого локального додатка для тестів всередині пайплайну
         BASE_URL = 'http://localhost:3000'
