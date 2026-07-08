@@ -10,17 +10,17 @@ pipeline {
         stage('1. Initialization') {
             steps {
                 echo 'Зчитування коду та встановлення залежностей...'
-                sh 'npm install'
+                bat 'npm install'
             }
         }
 
         stage('2. Start Core Banking Application') {
             steps {
                 echo 'Запуск банківського сервера Apex Ledger у фоновому режимі...'
-                // Запускаємо Express сервер у фоні (&), щоб пайплайн міг йти далі до тестів
-                sh 'node app/server.js &'
+                // Запускаємо Express сервер у фоні використовуючи start
+                bat 'start /B node app/server.js'
                 // Даємо серверу 3 секунди на ініціалізацію бази даних та генерацію 20 юзерів
-                sh 'sleep 3' 
+                sleep time: 3, unit: 'SECONDS'
             }
         }
 
@@ -30,7 +30,7 @@ pipeline {
                 // Запускаємо Jest тести. catchError дозволяє пайплайну не падати моментально,
                 // якщо ми хочемо зібрати звіти навіть у разі падіння тестів
                 catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                    sh 'npm run test'
+                    bat 'npm run test'
                 }
             }
         }
@@ -41,7 +41,7 @@ pipeline {
                 echo 'Запуск Е2Е сценаріїв на Cypress у Headless режимі...'
                 catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
                     // Команда для запуску Cypress в консольному режимі (ми додамо її в package.json пізніше)
-                    sh 'npm run cypress:run' 
+                    bat 'npm run cypress:run' 
                 }
             }
         }
@@ -55,7 +55,7 @@ pipeline {
             archiveArtifacts artifacts: '.soft-assertions-temp.json', allowEmptyArchive: true
             
             // Вбиваємо процес нашого Express сервера, щоб звільнити порт 3000 для наступних збірок
-            sh 'pkill -f "node app/server.js" || true'
+            bat 'taskkill /F /IM node.exe || exit 0'
         }
         success {
             echo 'CI/CD Пайплайн завершився успішно! Усі фінансові транзакції валідовано.'
