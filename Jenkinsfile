@@ -1,72 +1,56 @@
 pipeline {
     agent any
-    
+
     options {
-        // Цей рядок увімкне красиве колірне підсвічування в консолі Jenkins
         ansiColor('xterm') 
     }
 
     environment {
-        // Визначаємо URL нашого локального додатка для тестів всередині пайплайну
         BASE_URL = 'http://localhost:3000'
     }
 
     stages {
         stage('1. Initialization') {
             steps {
-                echo 'Зчитування коду та встановлення залежностей...'
+                echo '⚙️ Зчитування коду та встановлення залежностей...'
                 bat 'npm install'
             }
         }
 
         stage('2. Start Core Banking Application') {
             steps {
-                echo 'Запуск банківського сервера Apex Ledger у фоновому режимі...'
-                // Запускаємо Express сервер у фоні використовуючи start
-                bat 'start /B node app/server.js'
-                // Даємо серверу 3 секунди на ініціалізацію бази даних та генерацію 20 юзерів
-                sleep time: 3, unit: 'SECONDS'
+                echo '🚀 Запуск банківського сервера Apex Ledger в окремому фоновому вікні...'
+                // Запуск у новому повністю незалежному вікні CLI
+                bat 'start "ApexServer" node app/server.js'
+                // Очікування 5 секунд для стабільної ініціалізації БД
+                bat 'timeout /t 5 /nobreak'
             }
         }
 
         stage('3. Run API Tests (Jest)') {
             steps {
-                echo 'Запуск інтеграційного API-тест сьюту з Soft Assertions та SQL валідацією...'
-                // Запускаємо Jest тести. catchError дозволяє пайплайну не падати моментально,
-                // якщо ми хочемо зібрати звіти навіть у разі падіння тестів
+                echo '🧪 Запуск інтеграційного API-тест сьюту з Soft Assertions та SQL валідацією...'
                 catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
                     bat 'npm run test'
                 }
             }
         }
-
-        /*
-        stage('4. Run UI Tests (Cypress)') {
-            steps {
-                echo 'Запуск Е2Е сценаріїв на Cypress у Headless режимі...'
-                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                    // Команда для запуску Cypress в консольному режимі (ми додамо її в package.json пізніше)
-                    bat 'npm run cypress:run' 
-                }
-            }
-        }
-        */
     }
 
     post {
         always {
-            echo 'Архівація артефактів тестування та очищення оточення...'
-            // Зберігаємо наш крутий JSON з м'якими перевірками як артефакт збірки
-            archiveArtifacts artifacts: '.soft-assertions-temp.json', allowEmptyArchive: true
+            echo '📦 Архівація артефактів тестування та очищення оточення...'
+            // Виправлено шлях до артефакту згідно з підказкою Jenkins
+            archiveArtifacts artifacts: 'temp/.soft-assertions-temp.json', allowEmptyArchive: true
             
-            // Вбиваємо процес нашого Express сервера, щоб звільнити порт 3000 для наступних збірок
-            bat 'taskkill /F /IM node.exe || exit 0'
+            // Примусово тушимо сервер Node.js на Windows
+            bat 'taskkill /IM node.exe /F || exit 0'
         }
         success {
-            echo 'CI/CD Пайплайн завершився успішно! Усі фінансові транзакції валідовано.'
+            echo '✅ CI/CD Пайплайн завершився успішно! Усі фінансові транзакції валідовано.'
         }
         failure {
-            echo 'Пайплайн впав. Знайдено критичні дефекти в транзакційному ядрі!'
+            echo '🚨 Пайплайн впав. Знайдено критичні дефекти в транзакційному ядрі!'
         }
     }
 }
